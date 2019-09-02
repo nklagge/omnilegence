@@ -120,6 +120,26 @@ genderize <- function(dat){
   dat %>%
     left_join(g)
 }
+export_md_from_gr_record <- function(rec) {
+  yr_read <- substr(rec$read_at, 27, 30)
+  mo_read <- substr(rec$read_at, 5, 7)
+  san_title <- gsub("[^0-9A-Za-z ]", "", rec$book_title)
+  fname <- paste0(yr_read, " ", mo_read, " ", san_title, ".md")
+  fx <- character(11L)
+  x[1] <- paste0("*", rec$book_title, "*, by ", rec$aut_name, "  ")
+  x[2] <- paste0(rec$book_publisher, ", ", rec$book_publication_year, "  ")
+  x[3] <- paste0(rec$book_num_pages, " pages  ")
+  x[4] <- ""
+  x[5] <- paste0("[WorldCat](https://www.worldcat.org/isbn/", rec$book_isbn13, ")  ")
+  x[6] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")  ")
+  x[7] <- ""
+  x[8] <- paste0("Read: ", mo_read, " ", yr_read, "  ")
+  x[9] <- paste0("My rating: ", rec$rating, " stars  ")
+  x[10] <- ""
+  x[11] <- rec$body
+  readr::write_lines(x, fname)
+  invisible(TRUE)
+}
 
 dat <- get_user_shelf_reviews(2704424, "read", include_body = TRUE)
 #187 seconds
