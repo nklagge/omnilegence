@@ -120,34 +120,50 @@ genderize <- function(dat){
   dat %>%
     left_join(g)
 }
+get_coverlink <- function(isbn13) {
+  paste0("https://images.booksense.com/images/",
+         substr(isbn13, 11,13), 
+         "/",
+         substr(isbn13, 8, 10),
+         "/",
+         isbn13, 
+         ".jpg")
+}
 export_md_from_gr_record <- function(rec) {
   yr_read <- substr(rec$read_at, 27, 30)
-  mo_read <- match(substr(rec$read_at, 5, 7), month.abb)
+  mo_read <- sprintf("%02d", match(substr(rec$read_at, 5, 7), month.abb))
   day_read <- substr(rec$read_at, 9, 10)
-  san_title <- gsub("[^0-9A-Za-z ]", "", rec$book_title)
+  san_title <- gsub("[^0-9A-Za-z ]", "", rec$book_title_without_series)
   fname <- paste0(yr_read, " ", mo_read, " ", day_read, " ", san_title, ".md")
-  x <- character(14L)
+  coverlink <- get_coverlink(rec$book_isbn13)
+  x <- character(18L)
   x[1] <- "---"
   x[2] <- paste0("date: ", yr_read, "-", mo_read, "-", day_read)
   x[3] <- "meta: true"
-  x[4] <- paste0("title: ", san_title, " - ", rec$aut_name)
+  x[4] <- paste0("title: \"", rec$book_title_without_series, "\"")
   x[5] <- "toc: false"
   x[6] <- "categories:"
   x[7] <- paste0("- ", rec$aut_name)
-  x[8] <- "---"
-  x[9] <- ""
-  x[10] <- rec$body
-  x[11] <- ""
-  x[12] <- paste0("My rating: ", rec$rating, " stars  ")
+  x[8] <- "- books"
+  x[9] <- "---"
+  x[10] <- ""
+  x[11] <- "{{< section \"start\" >}}"
+  x[12] <- paste0("{{< figure src=\"", coverlink, 
+                 "\" type=\"margin\" label=\"mn-cover\" alt=\"Book cover\" >}}")
   x[13] <- ""
-  x[14] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")")
+  x[14] <- rec$body
+  x[15] <- ""
+  x[16] <- paste0("My rating: ", rec$rating, " stars  ")
+  x[17] <- ""
+  x[18] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")")
   readr::write_lines(x, fname)
   invisible(TRUE)
 }
 
+
 dat <- get_user_shelf_reviews(2704424, "read", include_body = TRUE)
-dat_test <- dat[c(1,2),]
-for (i in 1:nrow(dat_test)) {
-  export_md_from_gr_record(dat_test[i,])  
+setwd("~/testohare/content/post")
+for (i in 1:nrow(dat)) {
+  export_md_from_gr_record(dat[i,])  
 }
 
