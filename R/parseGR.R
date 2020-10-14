@@ -159,11 +159,3 @@ export_md_from_gr_record <- function(rec) {
   readr::write_lines(x, fname)
   invisible(TRUE)
 }
-
-
-dat <- get_user_shelf_reviews(2704424, "read", include_body = TRUE)
-setwd("~/testohare/content/post")
-for (i in 1:nrow(dat)) {
-  export_md_from_gr_record(dat[i,])  
-}
-
