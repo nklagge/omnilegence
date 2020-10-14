@@ -122,39 +122,32 @@ genderize <- function(dat){
 }
 export_md_from_gr_record <- function(rec) {
   yr_read <- substr(rec$read_at, 27, 30)
-  mo_read <- substr(rec$read_at, 5, 7)
+  mo_read <- match(substr(rec$read_at, 5, 7), month.abb)
+  day_read <- substr(rec$read_at, 9, 10)
   san_title <- gsub("[^0-9A-Za-z ]", "", rec$book_title)
-  fname <- paste0(yr_read, " ", mo_read, " ", san_title, ".md")
-  fx <- character(11L)
-  x[1] <- paste0("*", rec$book_title, "*, by ", rec$aut_name, "  ")
-  x[2] <- paste0(rec$book_publisher, ", ", rec$book_publication_year, "  ")
-  x[3] <- paste0(rec$book_num_pages, " pages  ")
-  x[4] <- ""
-  x[5] <- paste0("[WorldCat](https://www.worldcat.org/isbn/", rec$book_isbn13, ")  ")
-  x[6] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")  ")
-  x[7] <- ""
-  x[8] <- paste0("Read: ", mo_read, " ", yr_read, "  ")
-  x[9] <- paste0("My rating: ", rec$rating, " stars  ")
-  x[10] <- ""
-  x[11] <- rec$body
+  fname <- paste0(yr_read, " ", mo_read, " ", day_read, " ", san_title, ".md")
+  x <- character(14L)
+  x[1] <- "---"
+  x[2] <- paste0("date: ", yr_read, "-", mo_read, "-", day_read)
+  x[3] <- "meta: true"
+  x[4] <- paste0("title: ", san_title, " - ", rec$aut_name)
+  x[5] <- "toc: false"
+  x[6] <- "categories:"
+  x[7] <- paste0("- ", rec$aut_name)
+  x[8] <- "---"
+  x[9] <- ""
+  x[10] <- rec$body
+  x[11] <- ""
+  x[12] <- paste0("My rating: ", rec$rating, " stars  ")
+  x[13] <- ""
+  x[14] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")")
   readr::write_lines(x, fname)
   invisible(TRUE)
 }
 
 dat <- get_user_shelf_reviews(2704424, "read", include_body = TRUE)
-#187 seconds
-#print(system.time(dat <- get_author_genders(dat)))
-#too many requests limits
-#print(system.time(dat <- genderize(dat)))
-#print(system.time(k <- map(dat$book_id, get_popshelves)))
+dat_test <- dat[c(1,2),]
+for (i in 1:nrow(dat_test)) {
+  export_md_from_gr_record(dat_test[i,])  
+}
 
-dat <- dat %>%
-  mutate(aut_fname = word(aut_name, 1)) %>%
-  mutate(aut_yr_start = 1932, aut_yr_end = 2012)
-
-z <- dat %>%
-  gender_df(name_col = "aut_fname", year_col = c("aut_yr_start", "aut_yr_end"),
-            method = "ssa") %>%
-  select(aut_fname = name, aut_gender3 = gender)
-dat <- dat %>%
-  left_join(z)
