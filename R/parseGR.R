@@ -153,7 +153,7 @@ export_md_from_gr_record <- function(rec) {
   x[13] <- ""
   x[14] <- rec$body
   x[15] <- ""
-  x[16] <- paste0("My rating: ", rec$rating, " stars  ")
+  x[16] <- paste0("[My Goodreads rating: ", rec$rating, " stars](", url, ")  ")
   x[17] <- ""
   x[18] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")")
   readr::write_lines(x, fname)
