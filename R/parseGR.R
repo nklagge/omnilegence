@@ -136,26 +136,27 @@ export_md_from_gr_record <- function(rec) {
   san_title <- gsub("[^0-9A-Za-z ]", "", rec$book_title_without_series)
   fname <- paste0(yr_read, " ", mo_read, " ", day_read, " ", san_title, ".md")
   coverlink <- get_coverlink(rec$book_isbn13)
-  x <- character(18L)
+  x <- character(19L)
   x[1] <- "---"
   x[2] <- paste0("date: ", yr_read, "-", mo_read, "-", day_read)
   x[3] <- "meta: true"
-  x[4] <- paste0("title: \"", rec$book_title_without_series, "\"")
-  x[5] <- "toc: false"
-  x[6] <- "categories:"
-  x[7] <- paste0("- ", rec$aut_name)
-  x[8] <- "- books"
-  x[9] <- "---"
-  x[10] <- ""
-  x[11] <- "{{< section \"start\" >}}"
-  x[12] <- paste0("{{< figure src=\"", coverlink, 
+  x[4] <- paste0("title: \"<em>", rec$book_title_without_series, "</em>\"")
+  x[5] <- paste0("subtitle: \"", rec$aut_name, "\"")
+  x[6] <- "toc: false"
+  x[7] <- "categories:"
+  x[8] <- paste0("- ", rec$aut_name)
+  x[9] <- "- books"
+  x[10] <- "---"
+  x[11] <- ""
+  x[12] <- "{{< section \"start\" >}}"
+  x[13] <- paste0("{{< figure src=\"", coverlink, 
                  "\" type=\"margin\" label=\"mn-cover\" alt=\"Book cover\" >}}")
-  x[13] <- ""
-  x[14] <- rec$body
-  x[15] <- ""
-  x[16] <- paste0("[My Goodreads rating: ", rec$rating, " stars](", rec$url, ")  ")
-  x[17] <- ""
-  x[18] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")")
+  x[14] <- ""
+  x[15] <- rec$body
+  x[16] <- ""
+  x[17] <- paste0("[My Goodreads rating: ", rec$rating, " stars](", rec$url, ")  ")
+  x[18] <- ""
+  x[19] <- paste0("[IndieBound](https://www.indiebound.org/book/", rec$book_isbn13, ")")
   readr::write_lines(x, fname)
   invisible(TRUE)
 }
